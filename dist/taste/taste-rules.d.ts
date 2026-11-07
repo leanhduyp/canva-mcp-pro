@@ -11,6 +11,11 @@ export interface TypographySpec {
     presenterBadgePt: number;
 }
 export declare const PRESENTATION_TYPOGRAPHY: TypographySpec;
+/**
+ * Enterprise Dense Table / Architecture Topology Typography Spec
+ * Provides flexibility for complex matrices, tables, and system architectures (14pt-18pt floor)
+ */
+export declare const DENSE_TABLE_TYPOGRAPHY: TypographySpec;
 export declare const SLOP_BUZZWORDS: string[];
 export interface CopyValidationResult {
     valid: boolean;

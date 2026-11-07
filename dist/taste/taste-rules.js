@@ -9,6 +9,21 @@ export const PRESENTATION_TYPOGRAPHY = {
     badgePt: 22,
     presenterBadgePt: 44,
 };
+/**
+ * Enterprise Dense Table / Architecture Topology Typography Spec
+ * Provides flexibility for complex matrices, tables, and system architectures (14pt-18pt floor)
+ */
+export const DENSE_TABLE_TYPOGRAPHY = {
+    fontFamily: "Bai Jamjuree",
+    fontFamilyBold: "Bai Jamjuree Bold",
+    slideTitlePt: 35,
+    subtitlePt: 22,
+    cardTitlePt: 20,
+    bodyPt: 16,
+    heroMetricPt: 44,
+    badgePt: 16,
+    presenterBadgePt: 44,
+};
 // Anti-slop buzzwords from taste-skill copy principles
 export const SLOP_BUZZWORDS = [
     "revolutionary",

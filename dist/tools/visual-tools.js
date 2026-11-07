@@ -490,6 +490,24 @@ export function registerVisualTools(server) {
         const ext = args.script_type === "python" ? "py" : "js";
         const tempScript = path.join(tempDir, `sandbox_${Date.now()}.${ext}`);
         try {
+            // Enterprise AppSec RCE Prevention Policy:
+            const FORBIDDEN_TOKENS = [
+                "os.system", "subprocess", "shutil", "open(", "__subclasses__",
+                "__builtins__", "eval(", "exec(", "socket", "urllib", "requests",
+                "child_process", "require('fs')", "process.env", "curl ", "wget ", "rm -rf"
+            ];
+            const violations = FORBIDDEN_TOKENS.filter((t) => (args.code || "").includes(t));
+            if (violations.length > 0) {
+                return {
+                    isError: true,
+                    content: [
+                        {
+                            type: "text",
+                            text: `🛡️ ENTERPRISE APPSEC BLOCKED: Sandbox Policy Violation.\nPhát hiện mã lệnh gọi hệ thống nguy hiểm bị cấm: [${violations.join(", ")}].\nĐể đảm bảo an toàn tuyệt đối chống RCE & Indirect Prompt Injection, các lệnh truy cập hệ điều hành, shell và mạng đều bị vô hiệu hóa trong môi trường Enterprise.`,
+                        },
+                    ],
+                };
+            }
             await fs.writeFile(tempScript, args.code, "utf-8");
             let stdout = "";
             let stderr = "";

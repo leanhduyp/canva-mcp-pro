@@ -67,10 +67,19 @@ for idx, slide in enumerate(prs.slides):
                             min_font = pt
                         # Ignore footnote/page number boxes in bottom corners
                         is_footnote = sh.top and (sh.top.inches > 7.0 and sh.left.inches > 16.0)
-                        if pt < 23.5 and not is_footnote:
+                        
+                        # Enterprise Context-Aware Font Floor:
+                        # Standard slide: >= 24pt
+                        # Table / Multi-column Specs: >= 14pt
+                        is_table_context = sh.has_table if hasattr(sh, "has_table") else False
+                        is_dense_container = sh.name and any(d in sh.name.lower() for d in ["table", "spec", "grid", "matrix", "quadrant"])
+                        floor_threshold = 13.5 if (is_table_context or is_dense_container) else 23.5
+
+                        if pt < floor_threshold and not is_footnote:
                             small_fonts.append({
                                 "shapeName": sh.name or "TextBox",
                                 "fontSizePt": pt,
+                                "isDenseContext": (is_table_context or is_dense_container),
                                 "textSample": (r_text[:60] + "...") if len(r_text) > 60 else r_text
                             })
 

@@ -403,6 +403,30 @@ export function registerConnectTools(server) {
             if (!feedback) {
                 throw new Error("Vui lòng cung cấp 'comment_text' hoặc 'comment_id' hợp lệ để phân tích yêu cầu sửa đổi.");
             }
+            // Enterprise Prompt Injection Guard
+            const INJECTION_PATTERNS = [
+                /ignore\s+(?:all\s+)?previous\s+instructions/i,
+                /system\s+prompt/i,
+                /(?:execute|run)\s+(?:script|code|command)/i,
+                /os\.system/i,
+                /subprocess/i,
+                /(?:rm\s+-rf|del\s+\/f)/i,
+                /(?:curl|wget)\s+http/i,
+                /__subclasses__/i,
+                /__builtins__/i,
+            ];
+            const detectedInjections = INJECTION_PATTERNS.filter((pattern) => pattern.test(feedback));
+            if (detectedInjections.length > 0) {
+                return {
+                    isError: true,
+                    content: [
+                        {
+                            type: "text",
+                            text: `🛡️ ENTERPRISE SECURITY ALERT: Phát hiện dấu hiệu Indirect Prompt Injection trong nội dung phản hồi ('${detectedInjections[0]}'). Thao tác tự động sửa đổi đã bị dừng lại để bảo vệ an toàn hệ thống.`,
+                        },
+                    ],
+                };
+            }
             const slideMatch = feedback.match(/(?:slide|trang)\s*(\d+)/i);
             if (slideMatch && slideMatch[1]) {
                 targetSlide = parseInt(slideMatch[1], 10);

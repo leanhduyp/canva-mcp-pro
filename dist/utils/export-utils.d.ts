@@ -1,2 +1,7 @@
-export declare const DEFAULT_ARTIFACT_DIR = "C:\\Users\\mrduy\\.gemini\\antigravity\\brain\\0c273b01-9367-4f82-a2be-fc844b82be6d";
+/**
+ * Enterprise Multi-Tenant & Cross-Platform Dynamic Directory Resolver
+ * Never breaks on foreign machines or Docker containers
+ */
+export declare function getArtifactDirectory(): string;
+export declare const DEFAULT_ARTIFACT_DIR: string;
 export declare function exportSlidePng(presentationPath: string, slideNumber: number, customOutputPath?: string): Promise<string>;
