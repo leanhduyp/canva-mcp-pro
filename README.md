@@ -73,7 +73,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/mrduy/canva-mcp-pro.git
+git clone https://github.com/leanhduyp/canva-mcp-pro.git
 cd canva-mcp-pro
 
 # Install dependencies and build

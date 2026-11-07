@@ -6,7 +6,7 @@ Thank you for your interest in contributing to **Canva MCP Pro**! We welcome con
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/mrduy/canva-mcp-pro.git
+   git clone https://github.com/leanhduyp/canva-mcp-pro.git
    cd canva-mcp-pro
    ```
 
