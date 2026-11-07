@@ -1,0 +1,46 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install python-pptx Pillow
+
+    - name: Install Node.js dependencies
+      run: npm install
+
+    - name: Build TypeScript
+      run: npm run build
+
+    - name: Run CLI Diagnostics
+      run: node dist/index.js --test
+
+    - name: Run MCP Evaluation Suite (30 Test Cases)
+      run: npm test
+
+    - name: Build 1-Click Package (.mcpb)
+      run: npm run package:mcpb

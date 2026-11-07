@@ -1,0 +1,36 @@
+{
+  "manifest_version": "1.0",
+  "name": "canva-mcp-pro",
+  "display_name": "Canva MCP Pro (Presentation Architect)",
+  "version": "3.0.0",
+  "description": "High-fidelity Canva & Academic Presentation MCP Server with Taste-Skill & Python-pptx Vector Engine",
+  "author": {
+    "name": "Lê Anh Duy",
+    "email": "mrduy@enterprise-ai.vn",
+    "affiliation": "Enterprise AI Architecture & Open-Source Team"
+  },
+  "homepage": "https://github.com/mrduy/canva-mcp-pro",
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_version": "1.0.0",
+    "env": {
+      "CANVA_ACCESS_TOKEN": {
+        "description": "Canva Connect API Access Token (Tùy chọn khi cần đồng bộ trực tiếp Canva Cloud)",
+        "required": false
+      }
+    }
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  },
+  "categories": [
+    "productivity",
+    "design",
+    "presentation",
+    "ai-research"
+  ],
+  "tools_count": 21
+}

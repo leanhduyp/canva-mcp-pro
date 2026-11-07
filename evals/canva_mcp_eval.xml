@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<evaluation>
+  <qa_pair>
+    <question>Bảng màu chuẩn Corporate Navy & Gold trong taste-skill có mã ID là gì và màu nhấn chính (accent) có mã HEX là bao nhiêu?</question>
+    <answer>ID: corporate-navy, Accent: #153898</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Khi kiểm định văn bản slide chứa các từ sáo rỗng "revolutionary game-changing AI architecture", công cụ canva_validate_slide_copy trả về trạng thái gì và phát hiện các từ slop nào?</question>
+    <answer>Trạng thái: NEEDS_IMPROVEMENT, Slop: revolutionary, game-changing</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_add_kpi_dashboard yêu cầu kích thước cỡ chữ tối thiểu cho các số liệu Hero Metrics và phần nội dung phân tích (body) là bao nhiêu pt để đảm bảo chuẩn Taste-Skill?</question>
+    <answer>Hero Metrics >= 56pt, Body text >= 24pt</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_add_card_comparison hỗ trợ so sánh tối đa bao nhiêu thẻ kịch bản (ví dụ E1-E4) trong một slide và thẻ nổi bật (isHero) có độ dày viền bao nhiêu?</question>
+    <answer>Tối đa 5 cột kịch bản (mặc định 4 thẻ E1-E4), viền thẻ nổi bật 3.0pt</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Bố cục chia đôi (split_architecture) nhận những thành phần cấu trúc chính nào để trình bày song song hai luồng kiến trúc và kết luận hành động?</question>
+    <answer>left_panel, right_panel và bottom_banner</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ hợp nhất canva_add_tasteful_slide hỗ trợ những kiểu bố cục (layout_type) nào cho bài trình chiếu AI/ML?</question>
+    <answer>9 kiểu bố cục: kpi_dashboard, card_comparison, split_architecture, pipeline_flow, confusion_matrix, native_chart, process_timeline, swot_matrix, team_grid</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Khi truy vấn thông tin thiết kế Canva với ID "DAHaKPDSZSI", công cụ canva_get_design_info trả về các trường dữ liệu định danh chính nào?</question>
+    <answer>id, title, page_count, edit_url, thumbnail</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_list_workspace_designs cho phép người dùng tìm kiếm bài thuyết trình trong Canva Workspace bằng tham số đầu vào nào?</question>
+    <answer>Tham số query (từ khóa tìm kiếm)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_export_presentation_deck hỗ trợ xuất bản bài thuyết trình Canva ra những định dạng tệp nào?</question>
+    <answer>pptx, pdf, png, jpg</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Trạng thái trả về của công cụ canva_sync_to_cloud khi đồng bộ thành công bài thuyết trình với Canva Cloud là gì và cung cấp chế độ trình chiếu qua URL nào?</question>
+    <answer>Trạng thái: SYNC_READY, URL trình chiếu: presentUrl</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_export_slide_thumbnail kết xuất slide từ PowerPoint sang định dạng hình ảnh nào với độ phân giải tiêu chuẩn là bao nhiêu để nhúng vào Antigravity Artifacts?</question>
+    <answer>Định dạng PNG độ phân giải Full HD (1920x1080)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_audit_entire_deck thực hiện quét toàn diện những tiêu chí chất lượng nào trên tất cả các slide trong bài thuyết trình?</question>
+    <answer>Cỡ chữ nhỏ (&lt;24pt), từ ngữ AI slop, huy hiệu Người trình bày (Lê Anh Duy), bằng chứng số liệu Hard Facts và Deck Taste Score (/100)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_add_process_timeline dựng lộ trình tiến trình ngang với bao nhiêu bước và sử dụng các yếu tố đồ họa vector nào?</question>
+    <answer>Từ 3 đến 5 bước (steps), sử dụng số thứ tự hình tròn (rounded/oval number badges), đường nối vector pulse và cỡ chữ body >= 24pt</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_add_swot_matrix áp dụng 4 màu sắc trực quan nào tương ứng cho các phần Strengths, Weaknesses, Opportunities, Threats?</question>
+    <answer>Strengths (Xanh lục / Emerald), Weaknesses (Đỏ hồng / Rose), Opportunities (Xanh lam / Sky), Threats (Hổ phách / Amber)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_add_team_grid hỗ trợ hiển thị tối đa bao nhiêu thành viên và áp dụng cơ chế mặt nạ hình học nào cho ảnh đại diện avatar?</question>
+    <answer>Từ 2 đến 6 thành viên, sử dụng mặt nạ hình tròn (ellipse clip mask) hoặc huy hiệu chữ cái đầu (initials badge)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_upload_asset gửi yêu cầu đến endpoint nào của Canva Connect API và trả về trường định danh gì?</question>
+    <answer>Endpoint POST /v1/asset-uploads, trả về asset_id</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_sync_brand_kit trích xuất những thông tin nhận diện nào từ Canva Connect API để cập nhật trực tiếp vào palettes.ts?</question>
+    <answer>Bảng màu thương hiệu (color palettes: primary, secondary, accent) và phông chữ doanh nghiệp (fonts)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_generate_deck_from_data trong Giai đoạn 2 thực hiện tác vụ tự động hóa nào từ tệp dữ liệu CSV hoặc JSON đầu vào?</question>
+    <answer>Tự động đọc và phân tích dữ liệu, tự chọn bố cục tối ưu (KPI Dashboard, SWOT, Card Comparison, Process Timeline), tạo slide với cỡ chữ >= 24pt và gắn huy hiệu Lê Anh Duy</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_read_design_comments truy vấn bình luận của người dùng trên Canva Cloud qua endpoint nào của Canva Connect API?</question>
+    <answer>Endpoint GET /v1/designs/{id}/comments, hỗ trợ lọc theo trạng thái all, open, resolved</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Quy trình phản hồi hai chiều (Real-time Comment Loop) được công cụ canva_auto_fix_from_comment thực hiện như thế nào khi nhận ý kiến đóng góp?</question>
+    <answer>Bóc tách ý kiến phản hồi, tự động xác định slide mục tiêu, áp dụng bảng màu và cỡ chữ >= 24pt, ghi đè cập nhật vào Slide Engine, xuất ảnh thumbnail và đăng bình luận phản hồi xác nhận lên Canva Cloud</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Tổng số công cụ (tools) được đăng ký và cung cấp trong Canva MCP Pro Server sau khi hoàn thành v3.0 là bao nhiêu?</question>
+    <answer>21 công cụ chuyên nghiệp (visual-tools: 5, connect-tools: 8, taste-tools: 8)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Công cụ canva_execute_layout_script trong v3.0 mang lại năng lực đột phá nào cho AI Agent khi thao tác trên slide?</question>
+    <answer>Môi trường Local Code Sandbox (Python/JS) cho phép AI viết script thực thi hàng loạt các tính toán tọa độ vector phức tạp trực tiếp tại máy cục bộ, tiết kiệm 80% token LLM</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Cờ lệnh dòng lệnh canva-mcp-pro --test thực hiện kiểm tra những thành phần môi trường cốt lõi nào trước khi AI kết nối?</question>
+    <answer>Phiên bản Node.js, runtime Python và thư viện python-pptx/PIL, tệp PPTX active, kết nối Canva API token và tính toàn vẹn của 21 công cụ MCP</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Cờ lệnh dòng lệnh canva-mcp-pro --config xuất ra những thông số cấu hình hệ thống nào?</question>
+    <answer>Tên máy chủ, phiên bản v3.0.0, endpoint Canva API, đường dẫn file PowerPoint mặc định, bảng màu corporate-navy và danh sách 21 công cụ</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Gói phân phối 1-Click .mcpb của canva-mcp-pro được thiết kế để phục vụ đối tượng người dùng nào và chứa các thành phần cốt lõi nào?</question>
+    <answer>Phục vụ người dùng Claude Desktop cài đặt nhanh 1-click; chứa manifest.json, package.json, mã nguồn dist đã biên dịch và các tệp Agent Skills</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Kỹ năng canva-deck-builder hướng dẫn AI Agent quy trình mấy bước để tạo ra bài thuyết trình hoàn chỉnh từ dữ liệu?</question>
+    <answer>Quy trình 5 bước chuẩn mực: Phân tích dữ liệu, Chọn layout &amp; Bảng màu, Thực thi Slide Engine, Kiểm định thẩm mỹ Anti-slop, và Xuất thumbnail đồng bộ Cloud</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Kỹ năng canva-brand-auditor chấm điểm thẩm mỹ bài thuyết trình dựa trên những tiêu chí đánh giá vàng nào?</question>
+    <answer>Cỡ chữ tối thiểu >= 24pt, Huy hiệu Lê Anh Duy (44pt, Cyan #00B0F0), Anti-slop copy, Bằng chứng số liệu Hard Facts, và Giới hạn dung lượng từ Word Budget</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Kỹ năng canva-swot-analyst áp dụng những màu sắc nhận diện đặc trưng nào cho 4 góc phần tư của ma trận SWOT?</question>
+    <answer>Strengths (Xanh lục Emerald), Weaknesses (Đỏ hồng Rose), Opportunities (Xanh lam Sky), Threats (Hổ phách Amber)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Kỹ năng canva-kpi-dashboard yêu cầu tỷ lệ kích thước chữ cho các số liệu Hero Metrics và nội dung phân tích chuyên sâu là bao nhiêu?</question>
+    <answer>Số liệu Hero Metrics đạt 56pt bold, tiêu đề hộp nhận định >= 26pt bold, nội dung phân tích chuyên sâu >= 24pt</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Kiến trúc Hybrid Engine của canva-mcp-pro kết hợp giữa hai tầng công nghệ nào để mang lại trải nghiệm thuyết trình vượt trội?</question>
+    <answer>Tầng dựng vector cục bộ ngoại tuyến siêu nét qua Python-pptx và Tầng đồng bộ hai chiều thời gian thực lên Canva Cloud qua Canva Connect REST API</answer>
+  </qa_pair>
+</evaluation>
