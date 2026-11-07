@@ -16,3 +16,7 @@ export declare const SLIDE_DIMENSIONS: {
     heightPixels: number;
 };
 export declare const DEFAULT_PRESENTATION_PATH: string;
+export declare const CANVA_MCP_EXECUTION_MODE: string;
+export declare const CANVA_MCP_FORCE_COMMENT_PREVIEW: boolean;
+export declare const CANVA_MCP_TMP_TTL_SECONDS: number;
+export declare const CANVA_MCP_MAX_WORKSPACE_MB: number;

@@ -3,16 +3,29 @@ export interface CanvaApiOptions {
 }
 export declare class CanvaClient {
     private token;
+    private designRevisions;
     constructor(options?: CanvaApiOptions);
+    /**
+     * Enterprise HTTP Client with Exponential Backoff & Jitter
+     * Respects 429 Retry-After and retries on 502/503/504
+     */
+    private fetchWithRetry;
+    /**
+     * Optimistic Locking & Version Tracking
+     * Prevents blind overwrite conflicts when multiple users edit on Canva Cloud
+     */
+    recordDesignVersion(designId: string, updatedAt: string, revision?: number): void;
+    checkOptimisticLock(designId: string, currentCloudUpdatedAt?: string): {
+        isConflict: boolean;
+        reason?: string;
+    };
     private getHeaders;
-    getDesign(designId: string, signal?: AbortSignal): Promise<unknown>;
+    getDesign(designId: string, signal?: AbortSignal): Promise<any>;
     listDesigns(query?: string, signal?: AbortSignal): Promise<unknown>;
-    createAssetUploadUrl(signal?: AbortSignal): Promise<unknown>;
+    exportDesign(designId: string, format?: string, signal?: AbortSignal): Promise<unknown>;
     uploadAsset(imageUrl: string, assetName: string, signal?: AbortSignal): Promise<unknown>;
     getBrandKits(signal?: AbortSignal): Promise<unknown>;
     getBrandKit(brandKitId: string, signal?: AbortSignal): Promise<unknown>;
-    autofillBrandTemplate(templateId: string, title: string, dataset: Record<string, any>, signal?: AbortSignal): Promise<unknown>;
-    exportDesign(designId: string, format?: string, signal?: AbortSignal): Promise<unknown>;
     getDesignComments(designId: string, signal?: AbortSignal): Promise<unknown>;
     createDesignComment(designId: string, message: string, threadId?: string, signal?: AbortSignal): Promise<unknown>;
     /**

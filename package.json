@@ -1,7 +1,7 @@
 {
   "name": "canva-mcp-pro",
-  "version": "3.1.0",
-  "description": "Enterprise-Grade Presentation & Canva MCP Server with 21 Tools, Standalone Vector Engine, Safe Preview, PII Redaction & A2A Agent Card",
+  "version": "3.2.0",
+  "description": "Enterprise Production Presentation & Canva MCP Server with 21 Tools, Standalone Vector Engine, Zero-RCE Sandbox, Vietnam PII Guard, Delimiter Breakout Protection & A2A Agent Card",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

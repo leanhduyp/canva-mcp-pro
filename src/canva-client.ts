@@ -6,9 +6,60 @@ export interface CanvaApiOptions {
 
 export class CanvaClient {
   private token: string;
+  private designRevisions: Map<string, { updatedAt: string; revision: number }> = new Map();
 
   constructor(options: CanvaApiOptions = {}) {
     this.token = options.accessToken || process.env.CANVA_ACCESS_TOKEN || "";
+  }
+
+  /**
+   * Enterprise HTTP Client with Exponential Backoff & Jitter
+   * Respects 429 Retry-After and retries on 502/503/504
+   */
+  private async fetchWithRetry(url: string, init: RequestInit, maxRetries = 3): Promise<Response> {
+    let attempt = 0;
+    while (attempt <= maxRetries) {
+      try {
+        const res = await fetch(url, init);
+        if (res.status === 429 || res.status === 502 || res.status === 503 || res.status === 504) {
+          if (attempt === maxRetries) return res;
+          attempt++;
+          const retryAfter = res.headers.get("retry-after");
+          const delayMs = retryAfter
+            ? Math.max(parseInt(retryAfter, 10) * 1000, 1000)
+            : Math.min(500 * Math.pow(2, attempt) + Math.random() * 300, 8000);
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+          continue;
+        }
+        return res;
+      } catch (err: any) {
+        if (attempt === maxRetries) throw err;
+        attempt++;
+        const delayMs = Math.min(500 * Math.pow(2, attempt) + Math.random() * 300, 8000);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+    throw new Error("Maximum retry attempts reached");
+  }
+
+  /**
+   * Optimistic Locking & Version Tracking
+   * Prevents blind overwrite conflicts when multiple users edit on Canva Cloud
+   */
+  recordDesignVersion(designId: string, updatedAt: string, revision: number = 1) {
+    this.designRevisions.set(designId, { updatedAt, revision });
+  }
+
+  checkOptimisticLock(designId: string, currentCloudUpdatedAt?: string): { isConflict: boolean; reason?: string } {
+    const known = this.designRevisions.get(designId);
+    if (!known || !currentCloudUpdatedAt) return { isConflict: false };
+    if (new Date(currentCloudUpdatedAt).getTime() > new Date(known.updatedAt).getTime()) {
+      return {
+        isConflict: true,
+        reason: `[OPTIMISTIC LOCK CONFLICT] Thiết kế '${designId}' đã bị chỉnh sửa trên Cloud lúc ${currentCloudUpdatedAt} (sau phiên bản cục bộ ${known.updatedAt}). Hãy đồng bộ lại trước khi ghi đè.`
+      };
+    }
+    return { isConflict: false };
   }
 
   private getHeaders(allowMock = false): Record<string, string> {
@@ -33,18 +84,20 @@ export class CanvaClient {
 
   async getDesign(designId: string, signal?: AbortSignal) {
     if (!this.token) {
-      // Mock design info for offline tests if token is not set
+      const mockUpdatedAt = new Date(Date.now() - 3600000).toISOString();
+      this.recordDesignVersion(designId, mockUpdatedAt, 1);
       return {
         id: designId,
-        title: "Bao_Cao_Chu_De11.pptx",
-        page_count: 16,
+        title: "Ke_Hoach_AI_Agent_Enterprise_2026.pptx",
+        page_count: 20,
+        updated_at: mockUpdatedAt,
         urls: {
           edit_url: `https://www.canva.com/d/${designId}`,
           view_url: `https://www.canva.com/design/${designId}/view`,
         },
       };
     }
-    const res = await fetch(`${CANVA_API_BASE_URL}/designs/${designId}`, {
+    const res = await this.fetchWithRetry(`${CANVA_API_BASE_URL}/designs/${designId}`, {
       headers: this.getHeaders(),
       signal,
     });
@@ -52,7 +105,11 @@ export class CanvaClient {
       const errText = await res.text();
       throw new Error(`Canva API error (${res.status}): ${errText}`);
     }
-    return await res.json();
+    const data: any = await res.json();
+    if (data.updated_at) {
+      this.recordDesignVersion(designId, data.updated_at, data.revision || 1);
+    }
+    return data;
   }
 
   async listDesigns(query?: string, signal?: AbortSignal) {
@@ -63,6 +120,13 @@ export class CanvaClient {
             id: "DAHaKPDSZSI",
             title: "Bao_Cao_Chu_De11.pptx",
             page_count: 16,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            id: "DAHaPlYiblA",
+            title: "Ke_Hoach_AI_Agent_Enterprise_2026.pptx",
+            page_count: 20,
+            updated_at: new Date().toISOString(),
           },
         ],
       };
@@ -70,7 +134,7 @@ export class CanvaClient {
     const url = new URL(`${CANVA_API_BASE_URL}/designs`);
     if (query) url.searchParams.set("query", query);
 
-    const res = await fetch(url.toString(), {
+    const res = await this.fetchWithRetry(url.toString(), {
       headers: this.getHeaders(),
       signal,
     });
@@ -81,15 +145,26 @@ export class CanvaClient {
     return await res.json();
   }
 
-  async createAssetUploadUrl(signal?: AbortSignal) {
-    const res = await fetch(`${CANVA_API_BASE_URL}/asset-uploads`, {
+  async exportDesign(designId: string, format = "pptx", signal?: AbortSignal) {
+    if (!this.token) {
+      return {
+        job_id: `export_job_mock_${Date.now()}`,
+        status: "success",
+        download_url: `https://export.canva.com/mock/${designId}.${format}`,
+      };
+    }
+    const res = await this.fetchWithRetry(`${CANVA_API_BASE_URL}/exports`, {
       method: "POST",
       headers: this.getHeaders(),
+      body: JSON.stringify({
+        design_id: designId,
+        format: { type: format },
+      }),
       signal,
     });
     if (!res.ok) {
       const errText = await res.text();
-      throw new Error(`Canva API error (${res.status}): ${errText}`);
+      throw new Error(`Canva Export API error (${res.status}): ${errText}`);
     }
     return await res.json();
   }
@@ -97,19 +172,18 @@ export class CanvaClient {
   async uploadAsset(imageUrl: string, assetName: string, signal?: AbortSignal) {
     if (!this.token) {
       return {
-        asset_id: `asset_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        asset_id: `asset_mock_${Date.now()}`,
         name: assetName,
-        url: imageUrl,
         status: "uploaded_mock",
-        created_at: new Date().toISOString(),
+        url: imageUrl,
       };
     }
-    const res = await fetch(`${CANVA_API_BASE_URL}/asset-uploads`, {
+    const res = await this.fetchWithRetry(`${CANVA_API_BASE_URL}/asset-uploads`, {
       method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify({
+        url_metadata: { url: imageUrl },
         name: assetName,
-        url: imageUrl,
       }),
       signal,
     });
@@ -125,23 +199,21 @@ export class CanvaClient {
       return {
         brand_kits: [
           {
-            id: "brand-kit-iuh",
-            name: "Industrial University of Ho Chi Minh City (IUH)",
+            id: "bk_default",
+            name: "Enterprise Standard Brand Kit",
             colors: [
-              { hex: "#153898", name: "IUH Academic Blue" },
-              { hex: "#00B0F0", name: "Cyan Presenter Accent" },
-              { hex: "#F4B400", name: "Gold Achievement" },
-              { hex: "#102452", name: "Deep Ink" },
+              { hex: "#153898" },
+              { hex: "#F8FAFC" },
+              { hex: "#0F172A" },
+              { hex: "#00B0F0" },
+              { hex: "#22C55E" },
+              { hex: "#F4B400" },
             ],
-            fonts: {
-              title: "Bai Jamjuree Bold",
-              body: "Bai Jamjuree",
-            },
           },
         ],
       };
     }
-    const res = await fetch(`${CANVA_API_BASE_URL}/brand-kits`, {
+    const res = await this.fetchWithRetry(`${CANVA_API_BASE_URL}/brand-kits`, {
       headers: this.getHeaders(),
       signal,
     });
@@ -155,23 +227,19 @@ export class CanvaClient {
   async getBrandKit(brandKitId: string, signal?: AbortSignal) {
     if (!this.token) {
       return {
-        brand_kit: {
-          id: brandKitId || "brand-kit-iuh",
-          name: "Industrial University of Ho Chi Minh City (IUH)",
-          colors: [
-            { hex: "#153898", name: "IUH Academic Blue" },
-            { hex: "#00B0F0", name: "Cyan Presenter Accent" },
-            { hex: "#F4B400", name: "Gold Achievement" },
-            { hex: "#102452", name: "Deep Ink" },
-          ],
-          fonts: {
-            title: "Bai Jamjuree Bold",
-            body: "Bai Jamjuree",
-          },
-        },
+        id: brandKitId,
+        name: "Enterprise Standard Brand Kit",
+        colors: [
+          { hex: "#153898" },
+          { hex: "#F8FAFC" },
+          { hex: "#0F172A" },
+          { hex: "#00B0F0" },
+          { hex: "#22C55E" },
+          { hex: "#F4B400" },
+        ],
       };
     }
-    const res = await fetch(`${CANVA_API_BASE_URL}/brand-kits/${brandKitId}`, {
+    const res = await this.fetchWithRetry(`${CANVA_API_BASE_URL}/brand-kits/${brandKitId}`, {
       headers: this.getHeaders(),
       signal,
     });
@@ -182,71 +250,24 @@ export class CanvaClient {
     return await res.json();
   }
 
-  async autofillBrandTemplate(
-    templateId: string,
-    title: string,
-    dataset: Record<string, any>,
-    signal?: AbortSignal
-  ) {
-    const res = await fetch(`${CANVA_API_BASE_URL}/autofills`, {
-      method: "POST",
-      headers: this.getHeaders(),
-      body: JSON.stringify({
-        brand_template_id: templateId,
-        title,
-        data: dataset,
-      }),
-      signal,
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Canva API error (${res.status}): ${errText}`);
-    }
-    return await res.json();
-  }
-
-  async exportDesign(designId: string, format = "pptx", signal?: AbortSignal) {
-    const res = await fetch(`${CANVA_API_BASE_URL}/exports`, {
-      method: "POST",
-      headers: this.getHeaders(),
-      body: JSON.stringify({
-        design_id: designId,
-        format,
-      }),
-      signal,
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Canva API error (${res.status}): ${errText}`);
-    }
-    return await res.json();
-  }
-
   async getDesignComments(designId: string, signal?: AbortSignal) {
     if (!this.token) {
-      // Mock review comments for offline testing and demos
       return {
         items: [
           {
-            id: "cmt_review_001",
-            thread_id: "thread_slide_16",
-            author: {
-              name: "Reviewer Hội Đồng",
-              email: "hoidong@iuh.edu.vn",
-            },
-            message: "Slide 16: Cần điều chỉnh cỡ chữ phần nhận định lâm sàng lên tối thiểu 24pt, đổi màu nhấn sang bảng màu iuh-brand và đảm bảo huy hiệu Lê Anh Duy (44pt, Cyan #00B0F0) hiển thị rõ.",
+            id: "cmt_review_01",
+            thread_id: "thread_01",
+            author: { name: "Hội đồng Thẩm định AI", email: "audit@enterprise-ai.vn" },
+            message: "Slide 16 phân tích chưa rõ ràng, đề nghị tăng cỡ chữ >= 24pt và áp dụng bảng màu cool-white-slate.",
             slide_reference: 16,
             created_at: new Date(Date.now() - 3600000).toISOString(),
             status: "open",
           },
           {
-            id: "cmt_review_002",
-            thread_id: "thread_slide_17",
-            author: {
-              name: "PGS. TS. Cố Vấn",
-              email: "advisor.ai@hospital.vn",
-            },
-            message: "Bổ sung số liệu độ nhạy Sensitivity 96.8% và kết luận hành động nhấn mạnh tính minh bạch của Decision Tree.",
+            id: "cmt_review_02",
+            thread_id: "thread_02",
+            author: { name: "Bác sĩ Cố vấn", email: "advisor@medtech.org" },
+            message: "Cần bổ sung độ nhạy Sensitivity 96.8% vào Slide 17 và giữ vững huy hiệu Người trình bày.",
             slide_reference: 17,
             created_at: new Date(Date.now() - 1800000).toISOString(),
             status: "open",
@@ -254,7 +275,7 @@ export class CanvaClient {
         ],
       };
     }
-    const res = await fetch(`${CANVA_API_BASE_URL}/designs/${designId}/comments`, {
+    const res = await this.fetchWithRetry(`${CANVA_API_BASE_URL}/designs/${designId}/comments`, {
       headers: this.getHeaders(),
       signal,
     });
@@ -281,7 +302,7 @@ export class CanvaClient {
         created_at: new Date().toISOString(),
       };
     }
-    const res = await fetch(`${CANVA_API_BASE_URL}/designs/${designId}/comments`, {
+    const res = await this.fetchWithRetry(`${CANVA_API_BASE_URL}/designs/${designId}/comments`, {
       method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify({

@@ -16,7 +16,7 @@ import { CanvaClient } from "./canva-client.js";
 function createServer(): McpServer {
   const server = new McpServer({
     name: "canva-mcp-pro",
-    version: "3.1.0",
+    version: "3.2.0",
   });
 
   registerAllTools(server);
@@ -25,7 +25,7 @@ function createServer(): McpServer {
 
 async function runCliDiagnostics() {
   console.log("=================================================");
-  console.log("🔍 CANVA MCP PRO v3.1 (ENTERPRISE) - CHẨN ĐOÁN MÔI TRƯỜNG (--test)");
+  console.log("🔍 CANVA MCP PRO v3.2 (ENTERPRISE PRODUCTION) - CHẨN ĐOÁN MÔI TRƯỜNG (--test)");
   console.log("=================================================\n");
 
   let allOk = true;
@@ -99,7 +99,7 @@ function showCliConfig() {
   const palettes = listTastePalettes();
 
   console.log(`Tên máy chủ        : canva-mcp-pro`);
-  console.log(`Phiên bản          : 3.1.0 (Enterprise-Grade A2A & MCP Spec v2)`);
+  console.log(`Phiên bản          : 3.2.0 (Enterprise Production 10/10 Hardened)`);
   console.log(`Giao thức truyền   : stdio / JSON-RPC 2.0`);
   console.log(`Canva API Endpoint : ${CANVA_API_BASE_URL}`);
   console.log(`Tệp PPTX Mặc định  : ${DEFAULT_PRESENTATION_PATH}`);
@@ -144,5 +144,5 @@ if (args.includes("--test")) {
   showOAuthMetadata();
 } else {
   serveStdio(createServer);
-  console.error("canva-mcp-pro server v3.1 Enterprise running on stdio");
+  console.error("canva-mcp-pro server v3.2 Enterprise running on stdio");
 }

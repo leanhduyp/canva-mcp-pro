@@ -5,6 +5,8 @@ import { syncCanvaBrandKitPalette, getTastePalette, DEFAULT_PALETTE_ID } from ".
 import { SlideEngine } from "../engine/slide-engine.js";
 import { validateSlideCopy, PRESENTATION_TYPOGRAPHY } from "../taste/index.js";
 import { redactPii, redactEmail } from "../utils/pii-redactor.js";
+import { sanitizeDelimiters, inspectPromptInjection } from "../utils/prompt-guard.js";
+import { CANVA_MCP_FORCE_COMMENT_PREVIEW } from "../constants.js";
 
 const canvaClient = new CanvaClient();
 const slideEngine = new SlideEngine();
@@ -451,6 +453,10 @@ export function registerConnectTools(server: McpServer) {
           .boolean()
           .default(true)
           .describe("Tự động xuất ảnh thumbnail PNG sau khi sửa"),
+        preview_mode: z
+          .boolean()
+          .default(false)
+          .describe("Chế độ xem trước (Dry-run): Trả về phân tích thay đổi, diff layout và điểm Taste mà không ghi đè vào tệp PowerPoint gốc"),
       }),
       annotations: {
         readOnlyHint: false,
@@ -477,36 +483,23 @@ export function registerConnectTools(server: McpServer) {
           throw new Error("Vui lòng cung cấp 'comment_text' hoặc 'comment_id' hợp lệ để phân tích yêu cầu sửa đổi.");
         }
 
-        // Enterprise Prompt Injection Guard
-        const INJECTION_PATTERNS = [
-          /ignore\s+(?:all\s+)?previous\s+instructions/i,
-          /system\s+prompt/i,
-          /(?:execute|run)\s+(?:script|code|command)/i,
-          /os\.system/i,
-          /subprocess/i,
-          /(?:rm\s+-rf|del\s+\/f)/i,
-          /(?:curl|wget)\s+http/i,
-          /__subclasses__/i,
-          /__builtins__/i,
-        ];
-
-        const detectedInjections = INJECTION_PATTERNS.filter((pattern) => pattern.test(feedback));
-        if (detectedInjections.length > 0) {
+// Enterprise Prompt Injection Guard (Bilingual Heuristic & Breakout Detection)
+        const injectionScan = inspectPromptInjection(feedback);
+        if (!injectionScan.isSafe) {
           return {
             isError: true,
             content: [
               {
                 type: "text",
-                text: `🛡️ ENTERPRISE SECURITY ALERT: Phát hiện dấu hiệu Indirect Prompt Injection trong nội dung phản hồi ('${detectedInjections[0]}'). Thao tác tự động sửa đổi đã bị dừng lại để bảo vệ an toàn hệ thống.`,
+                text: `🛡️ ENTERPRISE SECURITY ALERT: Phát hiện dấu hiệu Prompt Injection trong nội dung phản hồi: [${injectionScan.detectedViolations.join(", ")}]. Thao tác tự động sửa đổi đã bị dừng lại để bảo vệ an toàn hệ thống.`,
               },
             ],
           };
         }
 
-        const slideMatch = feedback.match(/(?:slide|trang)\s*(\d+)/i);
-        if (slideMatch && slideMatch[1]) {
-          targetSlide = parseInt(slideMatch[1], 10);
-        }
+        // Mandatory Dry-Run Preview Enforcement for Cloud Comments
+        const forcePreview = process.env.CANVA_MCP_FORCE_COMMENT_PREVIEW !== "false" && CANVA_MCP_FORCE_COMMENT_PREVIEW;
+        const effectivePreviewMode = forcePreview || args.preview_mode;
 
         let paletteId = DEFAULT_PALETTE_ID;
         const lowFeedback = feedback.toLowerCase();

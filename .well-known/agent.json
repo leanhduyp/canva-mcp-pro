@@ -1,7 +1,7 @@
 {
   "$schema": "https://a2a-protocol.org/schemas/v1/agent-card.json",
   "name": "canva-mcp-pro",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "display_name": "Canva MCP Pro (Enterprise Presentation Agent)",
   "description": "Enterprise-Grade Autonomous Presentation Architect with 21 MCP Tools, Taste-Skill Design System, Standalone Vector Engine & Two-Way Canva Cloud Sync.",
   "protocol_version": "0.2.0",

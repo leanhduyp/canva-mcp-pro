@@ -1,0 +1,35 @@
+# ========================================================
+# Canva MCP Pro (v3.2.0 Enterprise Production Compose)
+# Fully Hardened: Read-Only Root FS, 512M Tmpfs, No-New-Privileges
+# ========================================================
+
+services:
+  canva-mcp-pro:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: canva-mcp-pro-prod
+    read_only: true
+    tmpfs:
+      - /tmp:size=512M,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - NODE_ENV=production
+      - CANVA_MCP_EXECUTION_MODE=declarative_json_only
+      - CANVA_MCP_FORCE_COMMENT_PREVIEW=true
+      - CANVA_MCP_TMP_TTL_SECONDS=900
+      - CANVA_MCP_MAX_WORKSPACE_MB=50
+      # Optional: set CANVA_ACCESS_TOKEN if connecting live to Canva Cloud
+      # - CANVA_ACCESS_TOKEN=${CANVA_ACCESS_TOKEN}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    restart: unless-stopped
+    stdin_open: true
+    tty: true

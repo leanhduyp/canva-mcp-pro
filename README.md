@@ -1,4 +1,4 @@
-# 🚀 Canva MCP Pro (v3.1 Enterprise-Grade)
+# 🚀 Canva MCP Pro (v3.2 Enterprise Production)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
@@ -6,10 +6,11 @@
 [![MCP](https://img.shields.io/badge/MCP-Spec%20v2%20Annotations-purple.svg)](https://modelcontextprotocol.io/)
 [![A2A Protocol](https://img.shields.io/badge/A2A-Agent%20Card%20v0.2-blueviolet.svg)](.well-known/agent.json)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-black.svg)](skills.json)
-[![Security](https://img.shields.io/badge/Security-PII%20Redacted%20%7C%20Dry--Run-green.svg)](#-enterprise-security--safety)
-[![Evaluations](https://img.shields.io/badge/Evals-30%2F30%20(100%25)-success.svg)](evals/canva_mcp_eval.xml)
+[![Security](https://img.shields.io/badge/Security-Zero--RCE%20%7C%20VN%20PII%20%7C%20Prompt%20Guard-green.svg)](#-enterprise-production-guardrails-v32)
+[![Evaluations](https://img.shields.io/badge/Evals-63%2F63%20(100%25)-success.svg)](scripts/run_evals.js)
+[![Docker](https://img.shields.io/badge/Docker-Hardened%20Non--Root-blue.svg)](Dockerfile)
 
-**Canva MCP Pro** is an open-source, enterprise-grade [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for autonomous AI presentation generation. It bridges **high-fidelity local vector rendering (offline Python-pptx & PIL)** with **two-way cloud synchronization (Canva Connect REST API)**, enforced by the **Taste-Skill Anti-Slop aesthetic system**.
+**Canva MCP Pro** is an open-source, enterprise-grade [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for autonomous AI presentation generation. It bridges **high-fidelity local vector rendering (offline Python-pptx & PIL)** with **two-way cloud synchronization (Canva Connect REST API)**, enforced by the **Taste-Skill Anti-Slop aesthetic system** and hardened for enterprise production environments.
 
 ---
 
@@ -18,23 +19,23 @@
 - **Dual-Engine Hybrid Architecture:**
   - **Local Vector Engine (100% Offline & Air-gapped):** Generates standalone, pixel-perfect 16:9 widescreen PowerPoint decks (`.pptx`) with zero dependency on third-party templates.
   - **Canva Cloud Connect Engine:** Full two-way synchronization with Canva Cloud REST API (`api.canva.com/rest/v1`), managing assets, brand kits, and real-time comment feedback loops.
-- **Local Code Sandbox (`canva_execute_layout_script`):**
-  - Allows AI agents to execute local Python/JavaScript code in an isolated sandbox, performing complex vector coordinate math directly on the host machine to save up to 80% of LLM token bandwidth.
+- **Zero-RCE Declarative Layout Engine (`canva_execute_layout_script`):**
+  - Production-default `CANVA_MCP_EXECUTION_MODE=declarative_json_only` eliminates arbitrary code execution entirely.
+  - Development sandboxing backed by strict AST/Token blocking (denies dunder `__`, reflection, globals, compilation, network tokens, and hex/unicode escapes).
+- **Multi-Layer Prompt Injection & Tag Breakout Neutralization:**
+  - Strict NFKC Unicode normalization and Zero-Width character stripping.
+  - Neutralizes closing tag breakout patterns (`</untrusted_user_comment>`) and bilingual jailbreak prompts in both English and Vietnamese.
+- **Enterprise Vietnam & Global PII Redactor:**
+  - Masks Vietnamese Citizen IDs (CCCD 12 digits), Enterprise Tax Codes (MST 10/13 digits), Vietnamese mobile phone carriers (03x–09x), JWT Bearer tokens, API keys, internal RFC 1918 IPs, and database URIs.
+- **Workspace Lifecycle & Anti-DoS:**
+  - Automatic TTL expiration (`CANVA_MCP_TMP_TTL_SECONDS=900`) and disk quota cap (`CANVA_MCP_MAX_WORKSPACE_MB=50`).
+  - Isolated multi-tenant directory scoping with POSIX `0700` permission lockdown.
 - **Taste-Skill Anti-Slop System:**
   - Automated copy audit against generic AI buzzwords (*revolutionary, game-changing, delve, tapestry*).
-  - Enforced typography floor: All body text strictly $\ge 24\text{ pt}$ to prevent text overflow and maximize room visibility.
+  - Enforced typography floor: All body text strictly $\ge 24\text{ pt}$ (and $\ge 14\text{ pt}$ for dense numerical matrices) to prevent text overflow and maximize room visibility.
   - Integrated 57 curated design palettes (`corporate-navy`, `cool-white-slate`, `minimal-dark`, etc.).
-- **Autonomous Deck-Auditor:**
-  - Built-in scanner inspecting text sizes, presenter badges, hard facts, and margin balance, returning a quantified **Taste Score (/100)**.
-- **Enterprise Security & PII Redaction:**
-  - Built-in PII Redactor masking sensitive emails, phone numbers, and API tokens in Canva Cloud comments (compliant with GDPR & SOC2).
-  - **Dry-Run Safe Preview Mode:** Simulates layout modifications and audits aesthetic score before writing to disk.
-- **A2A Protocol (Agent-to-Agent):**
-  - Implements Linux Foundation / Google A2A Agent Card specification (`/.well-known/agent.json`) allowing external AI Agents (Research, Data, Copywriter) to discover and delegate presentation tasks autonomously.
-- **skills.sh Ecosystem Distribution:**
-  - Ready for 1-command installation via `npx skills add leanhduyp/canva-mcp-pro`.
-- **1-Click Packaging (`.mcpb`):**
-  - Ships with a pre-packaged single-file distribution bundle (`release/canva-mcp-pro.mcpb`) for instant drag-and-drop installation into Claude Desktop.
+- **Production Containerization:**
+  - Multi-stage hardened Docker image running as unprivileged user `appuser` (UID 10001), read-only root filesystem, tmpfs `/tmp`, and pre-installed LibreOffice vector preview engine with Vietnamese fonts.
 
 ---
 
@@ -167,16 +168,58 @@ npm run diagnose
 
 ---
 
-## 🛡️ Enterprise Security & Safety
+## 🛡️ Enterprise Production Guardrails (v3.2)
 
-Canva MCP Pro v3.1 introduces enterprise-grade safety mechanisms inspired by high-assurance AI agents:
+Canva MCP Pro v3.2 introduces hardened security and operational guardrails designed for zero-trust enterprise environments:
 
-1. **PII Masking & Redaction Engine (`src/utils/pii-redactor.ts`):**
-   - Automatically sanitizes sensitive user details (Emails: `m***y@enterprise-ai.vn`, Phone numbers: `[REDACTED_PHONE]`, Secret tokens: `[REDACTED_SECRET_KEY]`) when reading Canva review comments.
-2. **Dry-Run Safe Preview Mode (`preview_mode: true`):**
-   - In `canva_auto_fix_from_comment`, passing `preview_mode: true` returns a complete layout diff, planned color palette, and predicted Taste score without mutating the original PowerPoint file.
-3. **OAuth 2.1 Specification Metadata:**
-   - Run `npm run oauth` to inspect Canva OAuth 2.1 authorization and token endpoints supporting PKCE (`S256`) code challenge methods.
+### 1. Zero-RCE Sandbox Policy (`CANVA_MCP_EXECUTION_MODE`)
+- **`declarative_json_only` (Default in Production):** Completely disables arbitrary script execution. Requires layout requests to pass through the deterministic Declarative JSON Layout Engine.
+- **`sandboxed_script` (Strict Dev Mode):** Enforces an AST/Token blocklist preventing string concatenation and dynamic property reflection:
+  - Blocked tokens: `__`, `getattr`, `setattr`, `delattr`, `globals`, `locals`, `vars`, `compile`, `open`, `importlib`, `Reflect`, `Function`, `constructor`, `prototype`, `process`, `globalThis`, `Buffer`, `atob`, `btoa`, and hex/unicode escape sequences (`\x`, `\u`).
+  - Strict 500ms execution timeout.
+
+### 2. Bilingual Prompt Injection & Delimiter Neutralization
+- Automatic Unicode NFKC normalization and Zero-Width character stripping (`\u200B-\u200D`, `\uFEFF`).
+- Neutralizes delimiter breakout attempts by escaping `</untrusted_user_comment>` into `[SANITIZED_TAG]`.
+- Multi-lingual heuristic scanner filtering English and Vietnamese prompt injection patterns (with and without diacritics).
+- `CANVA_MCP_FORCE_COMMENT_PREVIEW=true` enforces safe dry-run preview mode for all third-party Canva Cloud comment fixes.
+
+### 3. Vietnam & Global PII Redactor (Decree 13/2023/ND-CP & GDPR)
+- Masks **Vietnam Mobile Numbers** across all carriers (`032-039`, `05x`, `07x`, `08x`, `09x`, `+84`, punctuated).
+- Masks **Vietnam Citizen Identity Cards (CCCD - 12 digits)** and **Enterprise Tax IDs (MST - 10/13 digits)**.
+- Masks **JWT Tokens**, Cloud API Keys (`sk-`, `ghp_`, `AIza`), **Internal IPv4 addresses (RFC 1918)**, and **Database connection URIs** (`postgres://`, `mongodb://`, `redis://`).
+
+### 4. Workspace Lifecycle & Anti-DoS
+- **Session Isolation:** Dynamic multi-tenant folder scoping (`/tmp/canva-mcp-pro/session_<sessionId>`) with POSIX `0700` permission lockdown.
+- **Disk Quota:** Hard cap enforced at `CANVA_MCP_MAX_WORKSPACE_MB` (default: 50MB per session).
+- **TTL Auto-Purge:** Automatic background expiration and reclamation of temp workspaces older than `CANVA_MCP_TMP_TTL_SECONDS` (default: 900s / 15 minutes).
+
+### 5. High-Availability Cloud Sync
+- **Exponential Backoff & Jitter:** Automatic retries for Canva Cloud REST API transient failures (HTTP 429 rate limit, 502/503/504 gateways).
+- **Optimistic Locking:** Tracks design `updated_at` timestamps to prevent silent race-condition overwrites.
+
+---
+
+## 🐳 Production Docker Deployment
+
+Deploy a zero-privilege, fully isolated container with headless LibreOffice and Vietnamese typography pre-configured:
+
+```bash
+# 1. Start with Docker Compose (Hardened read-only container + 512MB tmpfs)
+docker compose -f docker-compose.prod.yml up -d
+
+# 2. View container health & logs
+docker compose -f docker-compose.prod.yml logs -f canva-mcp-pro
+
+# 3. Stop container
+docker compose -f docker-compose.prod.yml down
+```
+
+### Docker Hardening Specs
+- Base: `python:3.11-slim-bookworm` + Node.js 20 LTS.
+- Non-root user: `appuser` (UID 10001, GID 10001).
+- Filesystem: `read_only: true` with dedicated 512MB `tmpfs` mounted at `/tmp`.
+- Security Opts: `no-new-privileges:true`, dropped `ALL` Linux capabilities.
 
 ---
 
@@ -203,7 +246,7 @@ npx skills add leanhduyp/canva-mcp-pro
 ---
 ## 🧪 Testing & Evaluation
 
-Canva MCP Pro includes a comprehensive automated evaluation suite containing **30 XML QA test cases** covering every tool, schema, and aesthetic rule:
+Canva MCP Pro includes a comprehensive automated evaluation suite containing **30 XML QA test cases** and **33 Phase 7 Enterprise Hardening test cases** (63 total):
 
 ```bash
 npm test
@@ -212,15 +255,21 @@ npm test
 Expected output:
 ```text
 =================================================
-🚀 KHỞI CHẠY BỘ ĐÁNH GIÁ CANVA MCP PRO v3.0
+🚀 KHỞI CHẠY BỘ ĐÁNH GIÁ CANVA MCP PRO v3.2 ENTERPRISE (10/10 HARDENED)
 =================================================
-📦 MCP Tool Registry       : 21/21 Tools Ready
+📦 MCP Tool Registry       : 21/21 Tools Ready (MCP Spec v2 Annotations Verified)
 🧠 Agentic Skills           : 4/4 Skills Verified
 ❓ XML Evaluation QA Pairs : 30/30 PASSED (100.0%)
 🎨 Design Palettes         : 57 Curated Palettes
-📦 1-Click Bundle (.mcpb)  : release/canva-mcp-pro.mcpb (84.7 KB)
+📦 1-Click Bundle (.mcpb)  : release/canva-mcp-pro.mcpb (100.1 KB)
+🛡️ AppSec & Safe Sandboxing: PASSED (AST/Token Block, Font Floor, Delimiter Escape)
+🔐 Phase 7 Enterprise Hardening: 33/33 PASSED (100.0%)
+   ├── Obfuscated RCE Filter   : 10/10 PASSED
+   ├── Prompt Injection & Escape: 10/10 PASSED
+   ├── Vietnam Enterprise PII   : 8/8 PASSED
+   └── Multi-tenant Lifecycle  : 5/5 PASSED
 =================================================
-🏆 STATUS: 100% PRODUCTION READY!
+🏆 CANVA MCP PRO v3.2 ENTERPRISE ĐÃ HOÀN TẤT VÀ VƯỢT QUA 100% CÁC BÀI KIỂM ĐỊNH (ĐẠT CHUẨN ENTERPRISE PRODUCTION 10/10)!
 ```
 
 ---

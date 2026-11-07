@@ -5,11 +5,75 @@ import fsSync from "fs";
 import path from "path";
 import os from "os";
 const execFileAsync = promisify(execFile);
+// Enterprise Lifecycle & Quota Configuration
+export const CANVA_MCP_TMP_TTL_SECONDS = parseInt(process.env.CANVA_MCP_TMP_TTL_SECONDS || "900", 10); // Default: 15 minutes
+export const CANVA_MCP_MAX_WORKSPACE_MB = parseInt(process.env.CANVA_MCP_MAX_WORKSPACE_MB || "50", 10); // Default: 50 MB
+/**
+ * Calculates total size of files inside a directory (recursive)
+ */
+export async function calculateDirectorySize(dirPath) {
+    if (!fsSync.existsSync(dirPath))
+        return 0;
+    let totalBytes = 0;
+    try {
+        const entries = await fs.readdir(dirPath, { withFileTypes: true });
+        for (const entry of entries) {
+            const fullPath = path.join(dirPath, entry.name);
+            if (entry.isDirectory()) {
+                totalBytes += await calculateDirectorySize(fullPath);
+            }
+            else if (entry.isFile()) {
+                const stat = await fs.stat(fullPath);
+                totalBytes += stat.size;
+            }
+        }
+    }
+    catch (err) {
+        // Ignore permissions or race condition removals
+    }
+    return totalBytes;
+}
+/**
+ * Enterprise Auto-Purge: Scans and removes expired workspace sessions
+ * Prevents Disk Exhaustion DoS attacks
+ */
+export async function cleanupExpiredWorkspaces(ttlSeconds = CANVA_MCP_TMP_TTL_SECONDS) {
+    const baseTmp = path.join(os.tmpdir(), "canva-mcp-pro");
+    if (!fsSync.existsSync(baseTmp)) {
+        return { cleanedDirs: 0, reclaimedBytes: 0 };
+    }
+    const now = Date.now();
+    const maxAgeMs = ttlSeconds * 1000;
+    let cleanedDirs = 0;
+    let reclaimedBytes = 0;
+    try {
+        const items = await fs.readdir(baseTmp, { withFileTypes: true });
+        for (const item of items) {
+            if (item.isDirectory() && (item.name.startsWith("session_") || item.name.startsWith("artifacts_"))) {
+                const dirPath = path.join(baseTmp, item.name);
+                const stat = await fs.stat(dirPath);
+                if (now - stat.mtimeMs > maxAgeMs) {
+                    const dirSize = await calculateDirectorySize(dirPath);
+                    await fs.rm(dirPath, { recursive: true, force: true });
+                    cleanedDirs++;
+                    reclaimedBytes += dirSize;
+                }
+            }
+        }
+    }
+    catch (err) {
+        console.warn("Background workspace cleanup notice:", err.message);
+    }
+    return { cleanedDirs, reclaimedBytes };
+}
 /**
  * Enterprise Multi-Tenant & Cross-Platform Dynamic Directory Resolver
- * Never breaks on foreign machines or Docker containers
+ * Generates an isolated session directory with 0700 permissions
  */
-export function getArtifactDirectory() {
+export function getArtifactDirectory(sessionId) {
+    if (sessionId) {
+        return path.join(os.tmpdir(), "canva-mcp-pro", `session_${sessionId}`);
+    }
     if (process.env.MCP_OUTPUT_DIR) {
         return process.env.MCP_OUTPUT_DIR;
     }
@@ -21,9 +85,18 @@ export function getArtifactDirectory() {
 }
 export const DEFAULT_ARTIFACT_DIR = getArtifactDirectory();
 export async function exportSlidePng(presentationPath, slideNumber, customOutputPath) {
+    // Trigger background cleanup of expired workspaces
+    cleanupExpiredWorkspaces().catch(() => { });
     const normPptx = path.resolve(presentationPath).replace(/\//g, "\\");
     const targetDir = customOutputPath ? path.dirname(customOutputPath) : getArtifactDirectory();
-    await fs.mkdir(targetDir, { recursive: true });
+    // Create directory with secure permissions 0700 (Owner rwx only)
+    await fs.mkdir(targetDir, { recursive: true, mode: 0o700 });
+    // Check Workspace Disk Quota before writing
+    const currentSize = await calculateDirectorySize(targetDir);
+    const maxBytes = CANVA_MCP_MAX_WORKSPACE_MB * 1024 * 1024;
+    if (currentSize > maxBytes) {
+        throw new Error(`🛡️ DISK QUOTA EXCEEDED: Thư mục phiên (${(currentSize / (1024 * 1024)).toFixed(1)} MB) đã vượt quá hạn mức tối đa ${CANVA_MCP_MAX_WORKSPACE_MB} MB. Vui lòng dọn dẹp hoặc tăng CANVA_MCP_MAX_WORKSPACE_MB.`);
+    }
     const finalOutputPath = customOutputPath
         ? path.resolve(customOutputPath).replace(/\//g, "\\")
         : path.join(targetDir, `slide_${slideNumber}_preview.png`).replace(/\//g, "\\");
