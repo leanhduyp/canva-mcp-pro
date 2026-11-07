@@ -1,0 +1,81 @@
+{
+  "$schema": "https://a2a-protocol.org/schemas/v1/agent-card.json",
+  "name": "canva-mcp-pro",
+  "version": "3.1.0",
+  "display_name": "Canva MCP Pro (Enterprise Presentation Agent)",
+  "description": "Enterprise-Grade Autonomous Presentation Architect with 21 MCP Tools, Taste-Skill Design System, Standalone Vector Engine & Two-Way Canva Cloud Sync.",
+  "protocol_version": "0.2.0",
+  "author": {
+    "name": "Lê Anh Duy",
+    "email": "mrduy@enterprise-ai.vn",
+    "organization": "Enterprise AI Architecture & Open-Source Team",
+    "homepage": "https://github.com/leanhduyp"
+  },
+  "repository": "https://github.com/leanhduyp/canva-mcp-pro",
+  "license": "MIT",
+  "capabilities": {
+    "presentation_architecture": {
+      "aspect_ratio": "16:9 widescreen",
+      "engine": "python-pptx native vector engine",
+      "template_independent": true,
+      "supported_layouts": [
+        "Cover Dark Slate",
+        "3 Strategic Pillars",
+        "Hero KPI Dashboard (56pt)",
+        "Card Comparison",
+        "Split Architecture (50/50)",
+        "Process Timeline",
+        "SWOT Quad Matrix",
+        "Team Grid",
+        "Technical Specifications Table"
+      ]
+    },
+    "taste_skill_compliance": {
+      "typography_floor": ">= 24pt strictly enforced for body text",
+      "contrast_ratio": ">= 4.5:1 (WCAG AA compliant)",
+      "slop_words_filter": true,
+      "curated_palettes_count": 8
+    },
+    "canva_cloud_integration": {
+      "sync_mode": "hybrid (local vector pptx + live canva cloud sync)",
+      "realtime_feedback_loop": true,
+      "oauth2_supported": true
+    },
+    "enterprise_security": {
+      "pii_redaction": true,
+      "dry_run_preview": true,
+      "gdpr_soc2_compliant": true
+    }
+  },
+  "interfaces": [
+    {
+      "type": "mcp",
+      "transport": "stdio",
+      "command": "npx -y canva-mcp-pro",
+      "tools_count": 21,
+      "spec_version": "2026-v2"
+    },
+    {
+      "type": "a2a",
+      "roles": [
+        "PresentationArchitect",
+        "VisualDesigner",
+        "ComplianceAuditor"
+      ],
+      "delegation_inputs": [
+        "text/markdown",
+        "application/json"
+      ],
+      "delegation_outputs": [
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "image/png"
+      ]
+    }
+  ],
+  "agentic_skills": [
+    "canva-deck-builder",
+    "canva-brand-auditor",
+    "canva-kpi-dashboard",
+    "canva-swot-analyst"
+  ]
+}

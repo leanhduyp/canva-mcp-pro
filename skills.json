@@ -1,0 +1,94 @@
+{
+  "$schema": "https://skills.sh/schema/v1/skills.json",
+  "name": "canva-mcp-pro",
+  "version": "3.1.0",
+  "description": "Enterprise Canva & Presentation Architecture Skills Suite",
+  "author": "Lê Anh Duy <mrduy@enterprise-ai.vn>",
+  "license": "MIT",
+  "homepage": "https://github.com/leanhduyp/canva-mcp-pro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leanhduyp/canva-mcp-pro.git"
+  },
+  "skills": [
+    {
+      "id": "canva-deck-builder",
+      "name": "Canva Presentation Deck Builder",
+      "version": "3.1.0",
+      "path": "skills/canva-deck-builder/SKILL.md",
+      "description": "Kiến trúc sư xây dựng toàn bộ slide thuyết trình doanh nghiệp chuẩn Taste-Skill và vector độc lập 16:9.",
+      "triggers": [
+        "tạo slide",
+        "generate deck",
+        "presentation",
+        "thuyết trình",
+        "slide doanh nghiệp",
+        "báo cáo đề tài"
+      ],
+      "toolsRequired": [
+        "canva_add_kpi_dashboard",
+        "canva_add_card_comparison",
+        "canva_add_split_architecture",
+        "canva_add_tasteful_slide",
+        "canva_add_process_timeline",
+        "canva_add_swot_matrix",
+        "canva_add_team_grid"
+      ]
+    },
+    {
+      "id": "canva-brand-auditor",
+      "name": "Canva Brand & Taste Auditor",
+      "version": "3.1.0",
+      "path": "skills/canva-brand-auditor/SKILL.md",
+      "description": "Kiểm định chất lượng thương hiệu, tương phản màu sắc, cỡ chữ >= 24pt và bài trừ hoàn toàn từ ngữ vô nghĩa (AI slop).",
+      "triggers": [
+        "kiểm tra slide",
+        "audit deck",
+        "brand audit",
+        "taste check",
+        "đo điểm thẩm mỹ"
+      ],
+      "toolsRequired": [
+        "canva_audit_entire_deck",
+        "canva_validate_slide_copy",
+        "canva_list_taste_palettes"
+      ]
+    },
+    {
+      "id": "canva-kpi-dashboard",
+      "name": "Canva KPI & Metrics Dashboard Designer",
+      "version": "3.1.0",
+      "path": "skills/canva-kpi-dashboard/SKILL.md",
+      "description": "Thiết kế slide Dashboard đo lường chỉ số tài chính/kỹ thuật với số liệu Hero 56pt và lưới thẻ dữ liệu sắc nét.",
+      "triggers": [
+        "kpi",
+        "dashboard",
+        "chỉ số",
+        "metrics",
+        "doanh thu",
+        "tài chính"
+      ],
+      "toolsRequired": [
+        "canva_add_kpi_dashboard",
+        "canva_list_taste_palettes"
+      ]
+    },
+    {
+      "id": "canva-swot-analyst",
+      "name": "Canva SWOT Strategic Matrix Analyst",
+      "version": "3.1.0",
+      "path": "skills/canva-swot-analyst/SKILL.md",
+      "description": "Xây dựng ma trận phân tích chiến lược SWOT 4 góc phần tử chuẩn màu pastel doanh nghiệp và takeaway định hướng.",
+      "triggers": [
+        "swot",
+        "ma trận swot",
+        "phân tích điểm mạnh điểm yếu",
+        "chiến lược"
+      ],
+      "toolsRequired": [
+        "canva_add_swot_matrix",
+        "canva_list_taste_palettes"
+      ]
+    }
+  ]
+}

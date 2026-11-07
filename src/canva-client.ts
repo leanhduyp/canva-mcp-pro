@@ -296,4 +296,33 @@ export class CanvaClient {
     }
     return await res.json();
   }
+
+  /**
+   * OAuth 2.1 Specification & Enterprise Security Metadata
+   * Conforms to MCP Auth 2026 standard & Canva Developer Portal specs
+   */
+  getOAuth2Metadata() {
+    return {
+      protocol: "OAuth 2.1",
+      authorization_endpoint: "https://www.canva.com/api/oauth/authorize",
+      token_endpoint: "https://api.canva.com/rest/v1/oauth/token",
+      revocation_endpoint: "https://api.canva.com/rest/v1/oauth/revoke",
+      code_challenge_methods_supported: ["S256"],
+      grant_types_supported: ["authorization_code", "refresh_token"],
+      response_types_supported: ["code"],
+      scopes_supported: [
+        "design:content:read",
+        "design:content:write",
+        "design:meta:read",
+        "asset:read",
+        "asset:write",
+        "brandtemplate:content:read",
+        "comment:read",
+        "comment:write",
+        "profile:read",
+      ],
+      client_auth_methods_supported: ["client_secret_post", "client_secret_basic", "none"],
+      current_status: this.token ? "LIVE_AUTHENTICATED" : "OFFLINE_GRACEFUL_MOCK",
+    };
+  }
 }

@@ -20,14 +20,14 @@ async function buildMcpbBundle() {
     manifest_version: "1.0",
     name: "canva-mcp-pro",
     display_name: "Canva MCP Pro (Presentation Architect)",
-    version: "3.0.0",
+    version: "3.1.0",
     description: "High-fidelity Canva & Academic Presentation MCP Server with Taste-Skill & Python-pptx Vector Engine",
     author: {
       name: "Lê Anh Duy",
       email: "mrduy@enterprise-ai.vn",
       affiliation: "Enterprise AI Architecture & Open-Source Team"
     },
-    homepage: "https://github.com/mrduy/canva-mcp-pro",
+    homepage: "https://github.com/leanhduyp/canva-mcp-pro",
     server: {
       type: "node",
       entry_point: "dist/index.js",

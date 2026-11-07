@@ -1,15 +1,18 @@
 {
   "name": "canva-mcp-pro",
-  "version": "3.0.0",
-  "description": "High-fidelity Enterprise Presentation & Canva MCP Server bridging local Python vector rendering with Canva Cloud Connect API",
+  "version": "3.1.0",
+  "description": "Enterprise-Grade Presentation & Canva MCP Server with 21 Tools, Standalone Vector Engine, Safe Preview, PII Redaction & A2A Agent Card",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "canva-mcp-pro": "dist/index.js"
   },
+  "skills": "skills.json",
   "files": [
     "dist",
     "skills",
+    "skills.json",
+    ".well-known",
     "manifest.json",
     "LICENSE",
     "README.md"
@@ -20,6 +23,8 @@
     "test": "node scripts/run_evals.js",
     "diagnose": "node dist/index.js --test",
     "config": "node dist/index.js --config",
+    "agent-card": "node dist/index.js --agent-card",
+    "oauth": "node dist/index.js --oauth",
     "package:mcpb": "node scripts/build_mcpb.js"
   },
   "repository": {

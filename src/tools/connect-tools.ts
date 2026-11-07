@@ -4,6 +4,7 @@ import { CanvaClient } from "../canva-client.js";
 import { syncCanvaBrandKitPalette, getTastePalette, DEFAULT_PALETTE_ID } from "../taste/palettes.js";
 import { SlideEngine } from "../engine/slide-engine.js";
 import { validateSlideCopy, PRESENTATION_TYPOGRAPHY } from "../taste/index.js";
+import { redactPii, redactEmail } from "../utils/pii-redactor.js";
 
 const canvaClient = new CanvaClient();
 const slideEngine = new SlideEngine();

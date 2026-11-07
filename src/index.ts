@@ -4,16 +4,19 @@ import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import { execFile } from "child_process";
 import { promisify } from "util";
 import fs from "fs/promises";
+import path from "path";
 import { registerAllTools } from "./tools/index.js";
 import { DEFAULT_PRESENTATION_PATH, CANVA_API_BASE_URL } from "./constants.js";
 import { listTastePalettes, DEFAULT_PALETTE_ID } from "./taste/palettes.js";
 
 const execFileAsync = promisify(execFile);
 
+import { CanvaClient } from "./canva-client.js";
+
 function createServer(): McpServer {
   const server = new McpServer({
     name: "canva-mcp-pro",
-    version: "3.0.0",
+    version: "3.1.0",
   });
 
   registerAllTools(server);
@@ -22,7 +25,7 @@ function createServer(): McpServer {
 
 async function runCliDiagnostics() {
   console.log("=================================================");
-  console.log("🔍 CANVA MCP PRO v3.0 - CHẨN ĐOÁN MÔI TRƯỜNG (--test)");
+  console.log("🔍 CANVA MCP PRO v3.1 (ENTERPRISE) - CHẨN ĐOÁN MÔI TRƯỜNG (--test)");
   console.log("=================================================\n");
 
   let allOk = true;
@@ -87,7 +90,7 @@ async function runCliDiagnostics() {
 
 function showCliConfig() {
   console.log("=================================================");
-  console.log("⚙️ CANVA MCP PRO v3.0 - THÔNG SỐ CẤU HÌNH (--config)");
+  console.log("⚙️ CANVA MCP PRO v3.1 (ENTERPRISE) - THÔNG SỐ CẤU HÌNH (--config)");
   console.log("=================================================\n");
 
   const dummyServer = createServer();
@@ -96,7 +99,7 @@ function showCliConfig() {
   const palettes = listTastePalettes();
 
   console.log(`Tên máy chủ        : canva-mcp-pro`);
-  console.log(`Phiên bản          : 3.0.0 (Enterprise Architecture)`);
+  console.log(`Phiên bản          : 3.1.0 (Enterprise-Grade A2A & MCP Spec v2)`);
   console.log(`Giao thức truyền   : stdio / JSON-RPC 2.0`);
   console.log(`Canva API Endpoint : ${CANVA_API_BASE_URL}`);
   console.log(`Tệp PPTX Mặc định  : ${DEFAULT_PRESENTATION_PATH}`);
@@ -109,6 +112,23 @@ function showCliConfig() {
   process.exit(0);
 }
 
+async function showAgentCard() {
+  const cardPath = path.resolve(".well-known/agent.json");
+  try {
+    const content = await fs.readFile(cardPath, "utf-8");
+    console.log(content);
+  } catch (err: any) {
+    console.error("Lỗi đọc Agent Card:", err.message);
+  }
+  process.exit(0);
+}
+
+function showOAuthMetadata() {
+  const client = new CanvaClient();
+  console.log(JSON.stringify(client.getOAuth2Metadata(), null, 2));
+  process.exit(0);
+}
+
 // CLI argument parsing
 const args = process.argv.slice(2);
 if (args.includes("--test")) {
@@ -118,7 +138,11 @@ if (args.includes("--test")) {
   });
 } else if (args.includes("--config")) {
   showCliConfig();
+} else if (args.includes("--agent-card")) {
+  showAgentCard();
+} else if (args.includes("--oauth")) {
+  showOAuthMetadata();
 } else {
   serveStdio(createServer);
-  console.error("canva-mcp-pro server v3.0 running on stdio");
+  console.error("canva-mcp-pro server v3.1 Enterprise running on stdio");
 }

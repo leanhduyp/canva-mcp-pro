@@ -1,9 +1,12 @@
-# 🚀 Canva MCP Pro (v3.0 Enterprise Architecture)
+# 🚀 Canva MCP Pro (v3.1 Enterprise-Grade)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue.svg)](https://www.typescriptlang.org/)
-[![MCP](https://img.shields.io/badge/MCP-Protocol%20v2.4-purple.svg)](https://modelcontextprotocol.io/)
+[![MCP](https://img.shields.io/badge/MCP-Spec%20v2%20Annotations-purple.svg)](https://modelcontextprotocol.io/)
+[![A2A Protocol](https://img.shields.io/badge/A2A-Agent%20Card%20v0.2-blueviolet.svg)](.well-known/agent.json)
+[![skills.sh](https://img.shields.io/badge/skills.sh-Compatible-black.svg)](skills.json)
+[![Security](https://img.shields.io/badge/Security-PII%20Redacted%20%7C%20Dry--Run-green.svg)](#-enterprise-security--safety)
 [![Evaluations](https://img.shields.io/badge/Evals-30%2F30%20(100%25)-success.svg)](evals/canva_mcp_eval.xml)
 
 **Canva MCP Pro** is an open-source, enterprise-grade [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for autonomous AI presentation generation. It bridges **high-fidelity local vector rendering (offline Python-pptx & PIL)** with **two-way cloud synchronization (Canva Connect REST API)**, enforced by the **Taste-Skill Anti-Slop aesthetic system**.
@@ -23,6 +26,13 @@
   - Integrated 57 curated design palettes (`corporate-navy`, `cool-white-slate`, `minimal-dark`, etc.).
 - **Autonomous Deck-Auditor:**
   - Built-in scanner inspecting text sizes, presenter badges, hard facts, and margin balance, returning a quantified **Taste Score (/100)**.
+- **Enterprise Security & PII Redaction:**
+  - Built-in PII Redactor masking sensitive emails, phone numbers, and API tokens in Canva Cloud comments (compliant with GDPR & SOC2).
+  - **Dry-Run Safe Preview Mode:** Simulates layout modifications and audits aesthetic score before writing to disk.
+- **A2A Protocol (Agent-to-Agent):**
+  - Implements Linux Foundation / Google A2A Agent Card specification (`/.well-known/agent.json`) allowing external AI Agents (Research, Data, Copywriter) to discover and delegate presentation tasks autonomously.
+- **skills.sh Ecosystem Distribution:**
+  - Ready for 1-command installation via `npx skills add leanhduyp/canva-mcp-pro`.
 - **1-Click Packaging (`.mcpb`):**
   - Ships with a pre-packaged single-file distribution bundle (`release/canva-mcp-pro.mcpb`) for instant drag-and-drop installation into Claude Desktop.
 
@@ -155,6 +165,42 @@ npm run diagnose
 
 ---
 
+---
+
+## 🛡️ Enterprise Security & Safety
+
+Canva MCP Pro v3.1 introduces enterprise-grade safety mechanisms inspired by high-assurance AI agents:
+
+1. **PII Masking & Redaction Engine (`src/utils/pii-redactor.ts`):**
+   - Automatically sanitizes sensitive user details (Emails: `m***y@enterprise-ai.vn`, Phone numbers: `[REDACTED_PHONE]`, Secret tokens: `[REDACTED_SECRET_KEY]`) when reading Canva review comments.
+2. **Dry-Run Safe Preview Mode (`preview_mode: true`):**
+   - In `canva_auto_fix_from_comment`, passing `preview_mode: true` returns a complete layout diff, planned color palette, and predicted Taste score without mutating the original PowerPoint file.
+3. **OAuth 2.1 Specification Metadata:**
+   - Run `npm run oauth` to inspect Canva OAuth 2.1 authorization and token endpoints supporting PKCE (`S256`) code challenge methods.
+
+---
+
+## 🤖 A2A Protocol & Agent Card
+
+Canva MCP Pro is an autonomous presentation agent adhering to the **Agent-to-Agent (A2A) Protocol**:
+
+- **Agent Card URL:** [`/.well-known/agent.json`](.well-known/agent.json)
+- **Inspect via CLI:**
+  ```bash
+  npm run agent-card
+  ```
+
+---
+
+## 📦 Install via `skills.sh`
+
+Add all 4 presentation skills to your AI agent with a single command:
+
+```bash
+npx skills add leanhduyp/canva-mcp-pro
+```
+
+---
 ## 🧪 Testing & Evaluation
 
 Canva MCP Pro includes a comprehensive automated evaluation suite containing **30 XML QA test cases** covering every tool, schema, and aesthetic rule:
